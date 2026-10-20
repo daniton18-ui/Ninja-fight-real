@@ -3,35 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NINJA FIGHT</title>
+<title>NINJA FIGHT - STREET</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#0a0a0a;color:#fff}
-.h{background:#FF6B00;padding:12px;text-align:center}
-.g{width:96%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial Black,Arial}
+body{background:#0a0a0a;color:#fff;overflow:hidden}
+.h{background:#FF6B00;padding:10px;text-align:center}
+.g{width:96%;max-width:420px;margin:8px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .c{background:#1e1e1e;border:2px solid #FF8C00;border-radius:12px;overflow:hidden}
-.c.sel{border-color:#00FF66;box-shadow:0 0 10px #00FF66}
-.i{height:100px;background:#000;display:flex;align-items:center;justify-content:center}
-.i img{max-width:100%;max-height:100px}
-.info{padding:4px;text-align:center;background:#111}
+.c.sel{border-color:#00FF66;box-shadow:0 0 12px #00FF66}
+.i{height:90px;background:#000;display:flex;align-items:center;justify-content:center}
+.i img{max-width:100%;max-height:90px}
+.info{padding:3px;text-align:center;background:#111}
 .info b{color:#FF8C00;font-size:9px}
-.btm{position:fixed;bottom:0;left:0;right:0;background:#111;padding:10px;display:flex;gap:8px;justify-content:center}
+.btm{position:fixed;bottom:0;left:0;right:0;background:#111;padding:10px;display:flex;gap:8px}
 .btn{flex:1;padding:14px;border-radius:12px;font-weight:900}
 .btn1{background:#222;color:#FF8C00;border:2px solid #FF8C00}
 .btn2{background:#FF6B00;color:#000;border:0}
-#pelea{display:none;max-width:420px;margin:0 auto;text-align:center}
-.bar{height:18px;background:#222;border-radius:10px;overflow:hidden}
-.log{background:#fff;color:#000;padding:12px;border-radius:10px;margin:10px}
-.atks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.atk{padding:15px;border-radius:10px;background:#fff;color:#000;font-weight:900}
-.f-img{width:100px;height:100px;background:#000;border-radius:10px}
+#pelea{display:none;height:100vh;background: linear-gradient(to bottom, #1a2a4a 0%, #0a0a0a 60%); position:relative}
+.sf-top{display:flex;align-items:center;justify-content:space-between;padding:8px;background:#000}
+.life{height:22px;background:#333;border:2px solid #fff;flex:1;transform:skewX(-15deg);overflow:hidden}
+.life-fill{height:100%;width:100%;transition:width 0.3s}
+#v1{background:linear-gradient(90deg,#ffeb00,#ff6b00)}
+#v2{background:linear-gradient(90deg,#ff0040,#ff0000)}
+.vs{color:#ffeb00;font-size:28px;margin:0 10px;text-shadow:2px 2px 0 #000}
+.arena{position:relative;height:58vh;display:flex;align-items:flex-end;justify-content:space-between;padding:0 10px 20px;background: url('https://i.imgur.com/7ZQj5vG.png'); background-size:cover; background-position:center bottom}
+.fighter{width:42%;text-align:center;transition:transform 0.15s}
+.fighter img{width:130px;height:160px;object-fit:contain;filter:drop-shadow(0 0 8px #000)}
+.fighter.hit{animation:hit 0.3s}
+.fighter.att{transform:translateX(40px) scale(1.1)}
+#img2.att{transform:translateX(-40px) scale(1.1)}
+@keyframes hit{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}50%{transform:translateX(10px)}}
+.log{position:absolute;top:52%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#ffeb00;padding:8px 20px;border-radius:20px;border:2px solid #ffeb00;font-size:18px;min-width:200px}
+.atks{position:absolute;bottom:15px;left:0;right:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 10px}
+.atk{padding:18px;border-radius:12px;background:linear-gradient(#fff,#ccc);color:#000;font-weight:900;border:3px solid #000;box-shadow:0 4px 0 #000}
+.atk:active{transform:translateY(4px);box-shadow:0 0 0 #000}
+.nameTag{font-size:12px;color:#0f6;margin-bottom:5px}
+.nameTag.e{color:#f44}
 </style>
 </head>
 <body>
-<div id="selScreen"><div class="h"><h2>ELIGE TU NINJA - 10 REALES</h2><p id="st" style="font-size:12px">Cargando...</p></div><div class="g" id="grid"></div><div style="height:80px"></div><div class="btm"><button class="btn btn1" onclick="rand()">ALEATORIO</button><button class="btn btn2" onclick="go()">PELEAR</button></div></div>
-<div id="pelea"><div class="h"><h2 id="vsT">VS</h2></div><div style="display:flex;justify-content:space-between;padding:10px"><div style="width:45%"><div id="n1" style="color:#0f6"></div><div class="bar"><div id="v1" style="width:100%;height:100%;background:#0f6"></div></div><img id="img1" class="f-img"></div><div>VS</div><div style="width:45%"><div id="n2" style="color:#f44"></div><div class="bar"><div id="v2" style="width:100%;height:100%;background:#f44"></div></div><img id="img2" class="f-img"></div></div></div><div class="log" id="log">Elige ataque!</div><div class="atks"><button class="atk" onclick="atk('golpe')">GOLPE</button><button class="atk" onclick="atk('jutsu')">JUTSU</button><button class="atk" onclick="atk('def')">DEFENSA</button></div><button onclick="location.reload()" style="margin:20px;padding:10px">Cambiar</button></div>
+<div id="selScreen"><div class="h"><h2>ELIGE TU NINJA - STREET MODE</h2></div><div class="g" id="grid"></div><div style="height:80px"></div><div class="btm"><button class="btn btn1" onclick="rand()">ALEATORIO</button><button class="btn btn2" onclick="go()">¡PELEAR!</button></div></div>
+
+<div id="pelea">
+<div class="sf-top"><div class="life"><div id="v1" class="life-fill"></div></div><div class="vs">VS</div><div class="life"><div id="v2" class="life-fill"></div></div></div>
+<div class="arena">
+<div class="fighter" id="f1"><div class="nameTag" id="n1"></div><img id="img1"></div>
+<div class="fighter" id="f2"><div class="nameTag e" id="n2"></div><img id="img2" style="transform:scaleX(-1)"></div>
+<div class="log" id="log">¡FIGHT!</div>
+</div>
+<div class="atks"><button class="atk" onclick="atk('golpe')">👊 GOLPE</button><button class="atk" onclick="atk('jutsu')">🔥 JUTSU</button><button class="atk" onclick="atk('def')">🛡️ DEFENSA</button></div>
+</div>
+
 <script>
 let NINJAS=[],sel=null,ene=null,life1=100,life2=100;
 const NAMES={neji:'NEJI',lee:'LEE',sasuke:'SASUKE','072':'SAKURA',shikamaru:'SHIKA',naruto:'NARUTO',jiraiya:'JIRAIYA',anko:'ANKO',kakashi:'KAKASHI',temari:'TEMARI'};
@@ -45,20 +69,26 @@ async function load(){
     let k=Object.keys(NAMES).find(x=>low.includes(x));
     return {n:k?NAMES[k]:f.name.slice(0,6).toUpperCase(),f:f.name};
   });
-  document.getElementById('st').innerText=NINJAS.length+' NINJAS CARGADOS';
- }catch(e){
-  NINJAS=[
-   {n:'NEJI',f:'0d7e5-1_neji004.jpg'},{n:'LEE',f:'15451-rock-lee-19.jpg'},{n:'SAKURA',f:'47c62-072.jpg'},{n:'NARUTO',f:'6b8b8-naruto-5.png'}
-  ];
- }
+ }catch(e){ NINJAS=[{n:'NEJI',f:'0d7e5-1_neji004.jpg'}]; }
  build();
 }
-function build(){let g=document.getElementById('grid');g.innerHTML='';NINJAS.forEach((n,i)=>{let d=document.createElement('div');d.className='c';d.id='c-'+i;d.innerHTML=`<div class="i"><img src="${n.f}" onerror="this.src='https://via.placeholder.com/100'"></div><div class="info"><b>${n.n}</b></div>`;d.onclick=()=>pick(i);g.appendChild(d);});}
+function build(){let g=document.getElementById('grid');g.innerHTML='';NINJAS.forEach((n,i)=>{let d=document.createElement('div');d.className='c';d.id='c-'+i;d.innerHTML=`<div class="i"><img src="${n.f}"></div><div class="info"><b>${n.n}</b></div>`;d.onclick=()=>pick(i);g.appendChild(d);});}
 function pick(i){document.querySelectorAll('.c').forEach(x=>x.classList.remove('sel'));document.getElementById('c-'+i).classList.add('sel');sel=NINJAS[i];}
 function rand(){if(!NINJAS.length)return;pick(Math.floor(Math.random()*NINJAS.length));}
-function go(){if(!sel){alert('Elige ninja');return;}ene=NINJAS.filter(x=>x!=sel)[Math.floor(Math.random()*(NINJAS.length-1))];document.getElementById('selScreen').style.display='none';document.getElementById('pelea').style.display='block';document.getElementById('vsT').innerText=sel.n+' VS '+ene.n;document.getElementById('n1').innerText=sel.n;document.getElementById('n2').innerText=ene.n;document.getElementById('img1').src=sel.f;document.getElementById('img2').src=ene.f;}
-function atk(t){let d=0;if(t=='golpe')d=15;if(t=='jutsu')d=25;if(t=='def'){life1=Math.min(100,life1+15);document.getElementById('log').innerText='DEFENSA +15';up();setTimeout(eTurn,600);return;}life2-=d;if(life2<0)life2=0;document.getElementById('log').innerText='Golpe -'+d;up();if(life2<=0){document.getElementById('log').innerText='GANASTE!';return;}setTimeout(eTurn,600);}
-function eTurn(){let d=15;life1-=d;if(life1<0)life1=0;document.getElementById('log').innerText+=' | Enemigo -'+d;up();if(life1<=0)document.getElementById('log').innerText='PERDISTE';}
+function go(){if(!sel){alert('Elige ninja tocando uno verde');return;}ene=NINJAS.filter(x=>x!=sel)[Math.floor(Math.random()*(NINJAS.length-1))];document.getElementById('selScreen').style.display='none';document.getElementById('pelea').style.display='block';document.getElementById('n1').innerText=sel.n;document.getElementById('n2').innerText=ene.n;document.getElementById('img1').src=sel.f;document.getElementById('img2').src=ene.f;}
+function atk(t){
+ let f1=document.getElementById('f1'),f2=document.getElementById('f2');
+ if(t=='golpe'){f1.classList.add('att');setTimeout(()=>f1.classList.remove('att'),200);life2-=15;document.getElementById('log').innerText='¡GOLPE! -15';f2.classList.add('hit');setTimeout(()=>f2.classList.remove('hit'),300);}
+ if(t=='jutsu'){f1.classList.add('att');setTimeout(()=>f1.classList.remove('att'),200);life2-=28;document.getElementById('log').innerText='¡JUTSU! -28';f2.classList.add('hit');setTimeout(()=>f2.classList.remove('hit'),300);}
+ if(t=='def'){life1=Math.min(100,life1+15);document.getElementById('log').innerText='DEFENSA +15';up();setTimeout(eTurn,500);return;}
+ if(life2<0)life2=0;up();if(life2<=0){document.getElementById('log').innerText='¡GANASTE!';return;}setTimeout(eTurn,600);
+}
+function eTurn(){
+ let f1=document.getElementById('f1'),f2=document.getElementById('f2');
+ f2.classList.add('att');setTimeout(()=>f2.classList.remove('att'),200);
+ life1-=15;if(life1<0)life1=0;document.getElementById('log').innerText+=' | Enemigo -15';f1.classList.add('hit');setTimeout(()=>f1.classList.remove('hit'),300);
+ up();if(life1<=0)document.getElementById('log').innerText='PERDISTE';
+}
 function up(){document.getElementById('v1').style.width=life1+'%';document.getElementById('v2').style.width=life2+'%';}
 load();
 </script>
