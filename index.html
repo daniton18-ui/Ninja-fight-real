@@ -1,44 +1,59 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ELIGE TU NINJA</title>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NINJA FIGHT</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial Black}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#0a0a0a;color:#fff}
-.h{background:linear-gradient(90deg,#FF6B00,#FF8C00);padding:12px;text-align:center}
-.g{width:96%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.c{background:linear-gradient(180deg,#1e1e1e,#121212);border:2px solid #FF8C00;border-radius:12px;overflow:hidden;cursor:pointer}
-.c.sel{border-color:#00FF66;box-shadow:0 0 15px #00FF66;transform:scale(1.05)}
-.i{height:88px;background:#000;display:flex;align-items:center;justify-content:center}
-.i img{max-width:100%;max-height:86px;object-fit:contain}
-.info{padding:3px;text-align:center;background:#0f0f0f}
-.info b{color:#FF8C00;font-size:8px;display:block}
-.btm{position:fixed;bottom:0;left:0;right:0;background:#0f0f0f;border-top:2px solid #FF8C00;padding:10px;display:flex;gap:8px;justify-content:center;z-index:10}
-.btn{flex:1;max-width:180px;padding:14px;border-radius:12px;font-weight:900;border:2px solid #FF8C00;cursor:pointer}
-.btn1{background:#1a1a1a;color:#FF8C00}
-.btn2{background:linear-gradient(90deg,#FF8C00,#FFAE00);color:#000;border:0}
-#pelea{display:none;width:96%;max-width:420px;margin:0 auto;text-align:center}
-.bar{height:18px;background:#222;border:2px solid #fff;border-radius:10px;overflow:hidden;margin:5px 0}
-.log{background:#fff;color:#000;border-radius:12px;padding:12px;margin:12px 0;font-weight:800;font-size:14px}
+.h{background:#FF6B00;padding:12px;text-align:center}
+.g{width:96%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.c{background:#1e1e1e;border:2px solid #FF8C00;border-radius:12px;overflow:hidden}
+.c.sel{border-color:#00FF66;box-shadow:0 0 10px #00FF66}
+.i{height:100px;background:#000;display:flex;align-items:center;justify-content:center}
+.i img{max-width:100%;max-height:100px}
+.info{padding:3px;text-align:center;background:#111}
+.info b{color:#FF8C00;font-size:9px}
+.btm{position:fixed;bottom:0;left:0;right:0;background:#111;padding:10px;display:flex;gap:8px;justify-content:center}
+.btn{flex:1;padding:14px;border-radius:12px;font-weight:900}
+.btn1{background:#222;color:#FF8C00;border:2px solid #FF8C00}
+.btn2{background:#FF8C00;color:#000;border:0}
+#pelea{display:none;max-width:420px;margin:0 auto;text-align:center}
+.bar{height:18px;background:#222;border-radius:10px;overflow:hidden}
+.log{background:#fff;color:#000;padding:12px;border-radius:10px;margin:10px}
 .atks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.atk{padding:16px;border-radius:12px;border:2px solid #FF8C00;background:#fff;color:#000;font-weight:900;font-size:12px}
-.f-img{width:100px;height:100px;object-fit:contain;background:#000;border-radius:10px;border:2px solid #FF8C00}
-</style></head><body>
-<div id="selScreen"><div class="h"><h1>ELIGE TU NINJA</h1><p style="font-size:10px">16/16 REALES DESBLOQUEADOS</p></div><div class="g" id="grid"></div><div style="height:80px"></div><div class="btm"><button class="btn btn1" onclick="rand()">🎲 ALEATORIO</button><button class="btn btn2" onclick="go()">⚔️ PELEAR</button></div></div>
-<div id="pelea"><div class="h"><h1 id="vsT">VS</h1></div><div style="display:flex;justify-content:space-between;align-items:center;background:#111;border-radius:15px;padding:10px;border:1px solid #333;margin:10px 0"><div style="width:45%"><div id="n1" style="font-weight:900;color:#00FF66;font-size:11px"></div><div class="bar"><div id="v1" style="width:100%;height:100%;background:linear-gradient(90deg,#00FF66,#00CC66)"></div></div><img id="img1" class="f-img"></div><div>VS</div><div style="width:45%"><div id="n2" style="font-weight:900;color:#FF4444;font-size:11px"></div><div class="bar"><div id="v2" style="width:100%;height:100%;background:linear-gradient(90deg,#FF4444,#CC0000)"></div></div><img id="img2" class="f-img"></div></div><div class="log" id="log">¡Elige tu ataque!</div><div class="atks"><button class="atk" onclick="atk('golpe')">👊<br>GOLPE</button><button class="atk" onclick="atk('jutsu')">🔥<br>JUTSU</button><button class="atk" onclick="atk('def')">🛡️<br>DEFENSA</button></div><button onclick="location.reload()" style="margin:20px auto;display:block;background:#222;color:#fff;padding:12px 24px;border-radius:10px;border:1px solid #555;font-weight:700">↩️ CAMBIAR</button></div>
+.atk{padding:15px;border-radius:10px;background:#fff;color:#000;font-weight:900}
+.f-img{width:100px;height:100px;background:#000;border-radius:10px}
+</style>
+</head>
+<body>
+<div id="selScreen"><div class="h"><h2>ELIGE TU NINJA - 10 REALES</h2></div><div class="g" id="grid"></div><div style="height:80px"></div><div class="btm"><button class="btn btn1" onclick="rand()">ALEATORIO</button><button class="btn btn2" onclick="go()">PELEAR</button></div></div>
+<div id="pelea"><div class="h"><h2 id="vsT">VS</h2></div><div style="display:flex;justify-content:space-between;padding:10px"><div style="width:45%"><div id="n1" style="color:#0f6"></div><div class="bar"><div id="v1" style="width:100%;height:100%;background:#0f6"></div></div><img id="img1" class="f-img"></div><div>VS</div><div style="width:45%"><div id="n2" style="color:#f44"></div><div class="bar"><div id="v2" style="width:100%;height:100%;background:#f44"></div></div><img id="img2" class="f-img"></div></div></div><div class="log" id="log">Elige ataque!</div><div class="atks"><button class="atk" onclick="atk('golpe')">GOLPE</button><button class="atk" onclick="atk('jutsu')">JUTSU</button><button class="atk" onclick="atk('def')">DEFENSA</button></div><button onclick="location.reload()" style="margin:20px;padding:10px">Cambiar</button></div>
 <script>
-function safeShow(){return new Promise(r=>{try{if(typeof show_12010449!=='undefined'){show_12010449().then(()=>r()).catch(()=>r());}else{r();}}catch(e){r();}});}
-const N=[{n:'KAKASHI',f:'real_ninja_0.png'},{n:'SAKURA',f:'real_ninja_1.png'},{n:'SHIKAMARU',f:'real_ninja_2.png'},{n:'CHOJI',f:'real_ninja_3.png'},{n:'JIRAIYA',f:'real_ninja_4.png'},{n:'HINATA',f:'real_ninja_5.png'},{n:'SHINO',f:'real_ninja_6.png'},{n:'KIBA',f:'real_ninja_7.png'},{n:'GUY',f:'real_ninja_8.png'},{n:'TENTEN',f:'real_ninja_9.png'},{n:'LEE',f:'real_ninja_10.png'},{n:'NEJI',f:'real_ninja_11.png'},{n:'NARUTO',f:'real_ninja_12.png'},{n:'SASUKE',f:'real_ninja_13.png'},{n:'INO',f:'real_ninja_14.png'},{n:'KONOHAMARU',f:'real_ninja_15.png'}];
+let NINJAS=[
+{n:'NEJI',f:'0d7e5-1_neji004.jpg'},
+{n:'LEE',f:'15451-rock-lee-19.jpg'},
+{n:'SASUKE',f:'40e3b-sasuke-uchiha-sasuke-33259398-88-100.jpg'},
+{n:'SAKURA',f:'47c62-072.jpg'},
+{n:'SHIKA',f:'69298-tumblr_static_shikamaru.png'},
+{n:'NARUTO',f:'6b8b8-naruto-5.png'},
+{n:'JIRAIYA',f:'770fa-bandana-ninja-de-jiraiya-0e1-100.jpg'},
+{n:'ANKO',f:'91591-tumblr_static_mitarashi-anko.png'},
+{n:'KAKASHI',f:'abaca-nuns-kakashi-hatake-naruto-2.png'},
+{n:'TEMARI',f:'d8d15-12_temari2.jpg'}
+];
 let sel=null,ene=null,life1=100,life2=100;
-function build(){let g=document.getElementById('grid');N.forEach((n,i)=>{let d=document.createElement('div');d.className='c';d.id='c-'+i;d.innerHTML=`<div class="i"><img src="${n.f}"></div><div class="info"><b>${n.n}</b></div>`;d.onclick=()=>pick(i);g.appendChild(d);});}
+function build(){let g=document.getElementById('grid');NINJAS.forEach((n,i)=>{let d=document.createElement('div');d.className='c';d.id='c-'+i;d.innerHTML=`<div class="i"><img src="${n.f}"></div><div class="info"><b>${n.n}</b></div>`;d.onclick=()=>pick(i);g.appendChild(d);});}
+function pick(i){document.querySelectorAll('.c').forEach(x=>x.classList.remove('sel'));document.getElementById('c-'+i).classList.add('sel');sel=NINJAS[i];}
+function rand(){pick(Math.floor(Math.random()*10));}
+function go(){if(!sel){alert('Elige ninja');return;}ene=NINJAS.filter(x=>x!=sel)[Math.floor(Math.random()*9)];document.getElementById('selScreen').style.display='none';document.getElementById('pelea').style.display='block';document.getElementById('vsT').innerText=sel.n+' VS '+ene.n;document.getElementById('n1').innerText=sel.n;document.getElementById('n2').innerText=ene.n;document.getElementById('img1').src=sel.f;document.getElementById('img2').src=ene.f;}
+function atk(t){let d=0;if(t=='golpe')d=15;if(t=='jutsu')d=25;if(t=='def'){life1=Math.min(100,life1+15);document.getElementById('log').innerText='DEFENSA +15';up();setTimeout(eTurn,600);return;}life2-=d;if(life2<0)life2=0;document.getElementById('log').innerText='Golpe -'+d;up();if(life2<=0){document.getElementById('log').innerText='GANASTE!';return;}setTimeout(eTurn,600);}
+function eTurn(){let d=15;life1-=d;if(life1<0)life1=0;document.getElementById('log').innerText+=' | Enemigo -'+d;up();if(life1<=0)document.getElementById('log').innerText='PERDISTE';}
+function up(){document.getElementById('v1').style.width=life1+'%';document.getElementById('v2').style.width=life2+'%';}
 build();
-function pick(i){document.querySelectorAll('.c').forEach(x=>x.classList.remove('sel'));document.getElementById('c-'+i).classList.add('sel');sel=N[i];try{Telegram.WebApp.HapticFeedback.impactOccurred('light')}catch(e){}}
-function rand(){pick(Math.floor(Math.random()*16));}
-function go(){if(!sel){alert('¡Elige ninja! 🥷');return;}let o=N.filter(x=>x!==sel);ene=o[Math.floor(Math.random()*o.length)];document.getElementById('selScreen').style.display='none';document.getElementById('pelea').style.display='block';document.getElementById('vsT').innerText=`${sel.n} VS ${ene.n}`;document.getElementById('n1').innerText=sel.n;document.getElementById('n2').innerText=ene.n;document.getElementById('img1').src=sel.f;document.getElementById('img2').src=ene.f;life1=100;life2=100;upd();setTimeout(()=>safeShow(),2500);}
-function upd(){document.getElementById('v1').style.width=life1+'%';document.getElementById('v2').style.width=life2+'%';}
-function atk(t){if(life1<=0||life2<=0)return;let d=0,txt='';if(t==='golpe'){d=Math.floor(Math.random()*16)+12;txt=`¡${sel.n} GOLPE -${d}!`}if(t==='jutsu'){d=Math.floor(Math.random()*26)+18;txt=`¡${sel.n} JUTSU -${d}! 🔥`}if(t==='def'){life1=Math.min(100,life1+15);document.getElementById('log').innerText='🛡️ DEFENSA +15';upd();setTimeout(eTurn,600);return;}life2-=d;if(life2<0)life2=0;document.getElementById('log').innerText=txt;upd();if(life2<=0){setTimeout(win,400);return;}setTimeout(eTurn,700);}
-function eTurn(){let d=Math.floor(Math.random()*20)+8;life1-=d;if(life1<0)life1=0;document.getElementById('log').innerText+=` | ${ene.n} -${d}`;upd();if(life1<=0)setTimeout(lose,400);}
-function win(){document.getElementById('log').innerText=`🏆 ¡GANASTE CON ${sel.n}!`;try{Telegram.WebApp.HapticFeedback.notificationOccurred('success')}catch(e){}setTimeout(()=>{safeShow().then(()=>alert('+50 monedas 💰'));},500);}
-function lose(){document.getElementById('log').innerText=`💀 Perdiste...`;setTimeout(async()=>{if(confirm('¿Ver anuncio para revivir 50%?')){await safeShow();life1=50;upd();document.getElementById('log').innerText='¡Reviviste! 🔥';}},600);}
-</script></body></html>
+</script>
+</body>
+</html>
