@@ -1,240 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ninja Road: Street Fighter</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
-    <style>
-        body{font-family:'Courier New',monospace;background:#1a1a1a;color:#fff;text-align:center;margin:0;padding:0;overflow:hidden}
-        #menu-screen{padding:10px;box-sizing:border-box;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow-y:auto}
-        .stats-container{background:#2d2d2d;border:2px solid #ff4757;padding:10px;border-radius:10px;margin-bottom:15px;width:85%;max-width:320px}
-        .btn{background:#ff4757;color:#fff;border:none;padding:12px 25px;font-size:16px;font-weight:bold;border-radius:5px;cursor:pointer;margin:5px;width:85%;max-width:320px;box-shadow:0 4px #ff2e44}
-        .btn:active{box-shadow:0 0;transform:translateY(4px)}
-        .btn-ad{background:#ffa502;box-shadow:0 4px #ff7f50}
-        .selection-title{margin-top:15px;font-size:16px;color:#ffa502}
-        .grid-container{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
-        .card-box{border:2px dashed #555;padding:8px;background:#2d2d2d;border-radius:5px;cursor:pointer;font-size:12px;width:90px}
-        .selected{border-color:#ff4757 !important;background:#4a151b !important}
-        .unlocked{border-color:#2ed573 !important;background:#1e3d2f !important}
-        #game-container{display:none;width:100vw;height:100vh}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Ninja Road - Cuerpo Movible</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;overflow:hidden;user-select:none;font-family:Arial}
+#game-container{width:100vw;height:100vh}
+.ctrl{position:absolute;z-index:10;width:58px;height:58px;border-radius:16px;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);display:flex;justify-content:center;align-items:center;font-size:28px}
+.ctrl:active{background:rgba(255,71,87,0.7);transform:scale(0.9)}
+#up{left:75px;bottom:150px} #down{left:75px;bottom:20px}
+#left{left:10px;bottom:85px} #right{left:140px;bottom:85px}
+#tri{right:75px;bottom:150px;border-color:#2ed573;background:rgba(46,213,115,0.2)}
+#sqr{right:140px;bottom:85px;border-color:#3498db;background:rgba(52,152,219,0.2)}
+#cir{right:10px;bottom:85px;border-color:#ff4757;background:rgba(255,71,87,0.2)}
+#xis{right:75px;bottom:20px;border-color:#a480ff;background:rgba(164,128,255,0.2)}
+#label{position:absolute;top:10px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;opacity:0.6}
+</style>
 </head>
 <body>
-
-<div id="menu-screen">
-    <h1>🥷 NINJA ROAD 🥷</h1>
-    <div class="stats-container">
-        <h3>Ninja: <span id="ninja-name">Cargando...</span></h3>
-        <p>⭐ Nivel: <span id="ninja-level">1</span> (<span id="ninja-xp">0</span>/100 XP)</p>
-        <p>🪙 Monedas: <span id="ninja-coins">20</span></p>
-    </div>
-    <div class="selection-title">🥋 ELIGE TU GUERRERO 🥋</div>
-    <div class="grid-container" id="characters-grid">
-        <div id="char-shadow" class="card-box selected" onclick="selectCharacter('shadow')">🔵 SHADOW<br>⭐ Base</div>
-        <div id="char-blaze" class="card-box" onclick="unlockOrSelectCharacter('blaze', 50)">🔴 BLAZE<br>🪙 50</div>
-        <div id="char-storm" class="card-box" onclick="unlockOrSelectCharacter('storm', 150)">🟢 STORM<br>🪙 150</div>
-    </div>
-    <div class="selection-title">🏯 SELECCIONAR DOJO 🏯</div>
-    <div class="grid-container" id="stages-grid">
-        <div id="stage-0" class="card-box selected" onclick="selectStage(0)">🏯 Templo<br>✅ Libre</div>
-        <div id="stage-1" class="card-box" onclick="unlockOrSelectStage(1, 100)">🌋 Volcán<br>🪙 100</div>
-    </div>
-    <button class="btn" onclick="startFight()">🥊 PELEAR (VS IA)</button>
-    <button class="btn btn-ad" onclick="watchAdForCoins()">📺 VER ANUNCIO (+50)</button>
-</div>
-
+<div id="label">⬅️⬆️⬇️➡️ Mover | 🔺🟦⭕❌ Atacar</div>
 <div id="game-container"></div>
+<div id="up" class="ctrl">⬆️</div><div id="down" class="ctrl">⬇️</div><div id="left" class="ctrl">⬅️</div><div id="right" class="ctrl">➡️</div>
+<div id="tri" class="ctrl">🔺</div><div id="sqr" class="ctrl">🟦</div><div id="cir" class="ctrl">⭕</div><div id="xis" class="ctrl">❌</div>
 
 <script>
-    const tg = window.Telegram?.WebApp;
-    if(tg){ tg.expand(); tg.ready(); }
+const tg=window.Telegram?.WebApp; if(tg){tg.expand();tg.ready();}
+const config={type:Phaser.AUTO,width:window.innerWidth,height:window.innerHeight,parent:'game-container',physics:{default:'arcade',arcade:{gravity:{y:1000},debug:false}},scene:{preload,create,update}};
+new Phaser.Game(config);
 
-    let playerState = {
-        name: tg?.initDataUnsafe?.user?.first_name || "Ninja",
-        level:1,xp:0,coins:20,
-        selectedCharacter:'shadow', unlockedCharacters:['shadow'],
-        selectedStage:0, unlockedStages:[0]
+let player,enemy,ground;
+let move={up:false,down:false,left:false,right:false};
+let isCrouching=false,isBlocking=false,isAttacking=false;
+let hpP=100,hpE=100;
+
+function preload(){
+    // TU SPRITESHEET NUEVO CON CUERPO MOVIBLE - 6 FRAMES
+    this.load.spritesheet('body','./ninja_body.png',{frameWidth:320,frameHeight:320});
+}
+
+function create(){
+    const w=this.cameras.main.width,h=this.cameras.main.height;
+    this.add.rectangle(w/2,h/2,w,h,0x1a1f2e);
+    ground=this.add.rectangle(w/2,h-15,w,30,0x222222); this.physics.add.existing(ground,true);
+
+    // ANIMACIONES CON MOVIMIENTO DE CUERPO REAL
+    this.anims.create({key:'idle',frames:[{key:'body',frame:0}],frameRate:6,repeat:-1});
+    this.anims.create({key:'walk',frames:this.anims.generateFrameNumbers('body',{start:1,end:2}),frameRate:10,repeat:-1});
+    this.anims.create({key:'jump',frames:[{key:'body',frame:3}],frameRate:1});
+    this.anims.create({key:'crouch',frames:[{key:'body',frame:4}],frameRate:1});
+    this.anims.create({key:'punch',frames:[{key:'body',frame:5}],frameRate:12});
+    this.anims.create({key:'punch2',frames:[{key:'body',frame:5}],frameRate:20});
+    this.anims.create({key:'kick',frames:[{key:'body',frame:5}],frameRate:15});
+
+    player=this.physics.add.sprite(w*0.3,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
+    player.body.setSize(80,140).setOffset(120,140);
+    player.play('idle');
+
+    enemy=this.physics.add.sprite(w*0.7,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
+    enemy.setTint(0x3498db); enemy.flipX=true;
+    enemy.body.setSize(80,140).setOffset(120,140);
+    enemy.play('idle');
+
+    this.physics.add.collider(player,ground);
+    this.physics.add.collider(enemy,ground);
+
+    this.barP=this.add.graphics(); this.barE=this.add.graphics();
+    this.add.text(20,30,'TU',{font:'bold 12px Arial',fill:'#fff'});
+    this.add.text(w-40,30,'IA',{font:'bold 12px Arial',fill:'#fff'});
+
+    // BIND BOTONES
+    const bind=(id,k)=>{
+        let el=document.getElementById(id);
+        el.addEventListener('touchstart',e=>{e.preventDefault(); move[k]=true;},{passive:false});
+        el.addEventListener('touchend',e=>{e.preventDefault(); move[k]=false;},{passive:false});
+        el.addEventListener('mousedown',()=>move[k]=true);
+        el.addEventListener('mouseup',()=>move[k]=false);
+        el.addEventListener('mouseleave',()=>move[k]=false);
+    };
+    bind('up','up');bind('down','down');bind('left','left');bind('right','right');
+
+    const bindA=(id,fn)=>{
+        let el=document.getElementById(id);
+        el.addEventListener('touchstart',e=>{e.preventDefault(); fn.call(this);},{passive:false});
+        el.addEventListener('mousedown',()=>fn.call(this));
     };
 
-    const charColors = { shadow:0x3498db, blaze:0xe74c3c, storm:0x2ed573 };
-    const stageColors = { 0:0x2c3e50, 1:0xc0392b };
+    bindA('xis',function(){ // ❌ = SALTO + PATADA
+        if(player.body.onFloor()){ player.body.setVelocityY(-520); player.play('jump'); }
+    });
+    bindA('tri',function(){ // 🔺 TRIANGULO = GOLPE FUERTE
+        if(isAttacking) return; isAttacking=true;
+        player.play('punch'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
+        if(d<110){ hpE-=22; enemy.setTint(0xff0000); this.tweens.add({targets:enemy,x:enemy.x+(enemy.x>player.x?30:-30),duration:100,yoyo:true}); }
+        this.time.delayedCall(400,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
+    });
+    bindA('sqr',function(){ // 🟦 CUADRADO = PATADA RAPIDA
+        if(isAttacking) return; isAttacking=true;
+        player.play('kick'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
+        if(d<100){ hpE-=14; enemy.setTint(0xff4757); }
+        this.time.delayedCall(300,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
+    });
+    bindA('cir',function(){ // ⭕ CIRCULO = BLOQUEO
+        if(isBlocking) return; isBlocking=true; player.setTint(0x2ed573);
+        this.time.delayedCall(700,()=>{isBlocking=false; player.clearTint();});
+    });
+}
 
-    function updateUI(){
-        document.getElementById('ninja-name').innerText=playerState.name;
-        document.getElementById('ninja-level').innerText=playerState.level;
-        document.getElementById('ninja-xp').innerText=playerState.xp;
-        document.getElementById('ninja-coins').innerText=playerState.coins;
-        ['blaze','storm'].forEach(id=>{
-            let el=document.getElementById(`char-${id}`);
-            if(playerState.unlockedCharacters.includes(id) && !el.classList.contains('selected')){
-                el.className="card-box unlocked";
-                el.innerHTML=`${id.toUpperCase()}<br>✅ Listo`;
-            }
-        });
-        let stageEl=document.getElementById('stage-1');
-        if(playerState.unlockedStages.includes(1) && !stageEl.classList.contains('selected')){
-            stageEl.className="card-box unlocked";
-            stageEl.innerHTML="🌋 Volcán<br>✅ Listo";
-        }
-    }
-    updateUI();
+function update(){
+    if(!player) return;
 
-    function selectCharacter(id){
-        if(!playerState.unlockedCharacters.includes(id)) return;
-        playerState.selectedCharacter=id;
-        document.querySelectorAll('#characters-grid .card-box').forEach(el=>el.classList.remove('selected'));
-        document.getElementById(`char-${id}`).classList.add('selected');
-    }
-    function unlockOrSelectCharacter(id,cost){
-        if(playerState.unlockedCharacters.includes(id)){ selectCharacter(id); }
-        else if(playerState.coins>=cost){
-            playerState.coins-=cost; playerState.unlockedCharacters.push(id);
-            if(tg) tg.showAlert(`🥷 ${id.toUpperCase()} desbloqueado!`); else alert(id+' desbloqueado');
-            selectCharacter(id); updateUI();
-        } else { if(tg) tg.showAlert("❌ Sin monedas"); else alert("Sin monedas"); }
-    }
-    function selectStage(id){
-        if(!playerState.unlockedStages.includes(id)) return;
-        playerState.selectedStage=id;
-        document.querySelectorAll('#stages-grid .card-box').forEach(el=>el.classList.remove('selected'));
-        document.getElementById(`stage-${id}`).classList.add('selected');
-    }
-    function unlockOrSelectStage(id,cost){
-        if(playerState.unlockedStages.includes(id)){ selectStage(id); }
-        else if(playerState.coins>=cost){
-            playerState.coins-=cost; playerState.unlockedStages.push(id);
-            if(tg) tg.showAlert("🏯 Nueva arena!"); else alert("Arena desbloqueada");
-            selectStage(id); updateUI();
-        } else { if(tg) tg.showAlert("❌ Sin monedas"); else alert("Sin monedas"); }
-    }
-    function watchAdForCoins(){
-        if(tg){
-            tg.showPopup({title:'Anuncio',message:'+50 monedas',buttons:[{id:'done',type:'default',text:'Obtener'}]}, ()=>{
-                playerState.coins+=50; updateUI();
-            });
-        } else { playerState.coins+=50; updateUI(); }
-    }
-    function startFight(){
-        document.getElementById('menu-screen').style.display='none';
-        document.getElementById('game-container').style.display='block';
-        initPhaserGame();
+    // ADELANTE / ATRAS - CUERPO CAMINA
+    if(move.left){
+        player.body.setVelocityX(-220); player.flipX=true;
+        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
+    } else if(move.right){
+        player.body.setVelocityX(220); player.flipX=false;
+        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
+    } else {
+        player.body.setVelocityX(0);
+        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('idle',true);
     }
 
-    function initPhaserGame(){
-        const config={
-            type:Phaser.AUTO,
-            width:window.innerWidth, height:window.innerHeight,
-            parent:'game-container',
-            physics:{default:'arcade', arcade:{gravity:{y:700}, debug:false}},
-            scene:{preload, create, update}
-        };
-        const game=new Phaser.Game(config);
-        let player, enemy, ground;
-        let playerHealth=100, enemyHealth=100;
-        let playerBar, enemyBar;
-        let moveLeft=false, moveRight=false, isAttacking=false;
-        let cursors;
-
-        function preload(){}
-
-        function create(){
-            const w=this.cameras.main.width, h=this.cameras.main.height;
-            this.add.rectangle(w/2,h/2,w,h, stageColors[playerState.selectedStage]);
-
-            ground=this.add.rectangle(w/2,h-40,w,80,0x111111);
-            this.physics.add.existing(ground,true);
-
-            player=this.add.rectangle(w*0.25,h-150,42,62, charColors[playerState.selectedCharacter]);
-            this.physics.add.existing(player);
-            player.body.setCollideWorldBounds(true);
-
-            let enemyKey = playerState.selectedCharacter==='shadow'?'blaze':'shadow';
-            enemy=this.add.rectangle(w*0.75,h-150,42,62, charColors[enemyKey]);
-            this.physics.add.existing(enemy);
-            enemy.body.setCollideWorldBounds(true);
-
-            this.physics.add.collider(player,ground);
-            this.physics.add.collider(enemy,ground);
-
-            playerBar=this.add.graphics();
-            enemyBar=this.add.graphics();
-            this.add.text(20,20, playerState.selectedCharacter.toUpperCase(), {font:'bold 16px Arial', fill:'#fff'});
-            this.add.text(w-110,20,'RIVAL', {font:'bold 16px Arial', fill:'#fff'});
-
-            let btnL=this.add.text(30,h-70,'◀',{font:'48px Arial'}).setInteractive();
-            btnL.on('pointerdown',()=>moveLeft=true);
-            btnL.on('pointerup',()=>{moveLeft=false; player.body.setVelocityX(0);});
-            btnL.on('pointerout',()=>{moveLeft=false; player.body.setVelocityX(0);});
-
-            let btnR=this.add.text(120,h-70,'▶',{font:'48px Arial'}).setInteractive();
-            btnR.on('pointerdown',()=>moveRight=true);
-            btnR.on('pointerup',()=>{moveRight=false; player.body.setVelocityX(0);});
-            btnR.on('pointerout',()=>{moveRight=false; player.body.setVelocityX(0);});
-
-            let btnP=this.add.text(w-90,h-70,'🥊',{font:'44px Arial'}).setInteractive();
-            btnP.on('pointerdown',()=>doPunch.call(this, enemyKey));
-
-            cursors=this.input.keyboard.createCursorKeys();
-            this.input.keyboard.on('keydown-SPACE',()=>doPunch.call(this, enemyKey));
-        }
-
-        function doPunch(enemyKey){
-            if(isAttacking) return;
-            isAttacking=true;
-            player.fillColor=0xffffff;
-            let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
-            if(d<75){
-                enemyHealth-=18;
-                enemy.fillColor=0xff0000;
-                this.time.delayedCall(150,()=>enemy.fillColor=charColors[enemyKey]);
-                enemy.x+=(enemy.x>player.x?18:-18);
-            }
-            this.time.delayedCall(220,()=>{
-                player.fillColor=charColors[playerState.selectedCharacter];
-                isAttacking=false;
-            });
-        }
-
-        function update(){
-            if(playerHealth<=0 || enemyHealth<=0) return;
-            if(moveLeft || cursors.left.isDown) player.body.setVelocityX(-220);
-            else if(moveRight || cursors.right.isDown) player.body.setVelocityX(220);
-            else player.body.setVelocityX(0);
-
-            if(enemyHealth>0){
-                if(enemy.x>player.x+60) enemy.body.setVelocityX(-100);
-                else if(enemy.x<player.x-60) enemy.body.setVelocityX(100);
-                else {
-                    enemy.body.setVelocityX(0);
-                    if(Phaser.Math.Between(1,35)===5){
-                        playerHealth-=9;
-                        player.fillColor=0xff0000;
-                        this.time.delayedCall(150,()=>player.fillColor=charColors[playerState.selectedCharacter]);
-                    }
-                }
-            }
-
-            playerBar.clear(); playerBar.fillStyle(0x2ed573,1);
-            playerBar.fillRect(20,45,Math.max(0,playerHealth)*1.4,14);
-            enemyBar.clear(); enemyBar.fillStyle(0xff4757,1);
-            enemyBar.fillRect(window.innerWidth-160,45,Math.max(0,enemyHealth)*1.4,14);
-
-            if(enemyHealth<=0 || playerHealth<=0){
-                this.physics.pause();
-                let won=enemyHealth<=0;
-                if(won){ playerState.xp+=35; playerState.coins+=15; if(playerState.xp>=100){playerState.level++; playerState.xp=0;} }
-                this.add.text(this.cameras.main.width/2-80, this.cameras.main.height/2, won?"¡VICTORIA!":"K.O.", {font:'bold 32px Arial', backgroundColor:'#000', padding:{x:12,y:8}});
-                this.time.delayedCall(2500,()=>{
-                    game.destroy(true);
-                    document.getElementById('game-container').style.display='none';
-                    document.getElementById('menu-screen').style.display='flex';
-                    updateUI();
-                });
-            }
-        }
+    // SALTAR - CUERPO SE ENCOGE Y SALTA
+    if(move.up && player.body.onFloor()){
+        player.body.setVelocityY(-520);
+        player.play('jump');
     }
+
+    // AGACHARSE - CUERPO BAJA REAL
+    if(move.down){
+        if(!isCrouching){ isCrouching=true; player.body.setSize(80,70).setOffset(120,220); }
+        if(player.body.onFloor()&&!isAttacking) player.play('crouch',true);
+        player.body.setVelocityX(player.body.velocity.x*0.5);
+    } else {
+        if(isCrouching){ isCrouching=false; player.body.setSize(80,140).setOffset(120,140); }
+    }
+
+    if(!player.body.onFloor()&&!isAttacking){ player.play('jump',true); }
+
+    // BARRAS
+    this.barP.clear(); this.barP.fillStyle(0x2ed573,1); this.barP.fillRect(20,50,Math.max(0,hpP)*1.5,10);
+    this.barE.clear(); this.barE.fillStyle(0xff4757,1); this.barE.fillRect(window.innerWidth-170,50,Math.max(0,hpE)*1.5,10);
+
+    // IA simple
+    if(hpE>0 && enemy.body){
+        if(enemy.x>player.x+90) {enemy.body.setVelocityX(-100); enemy.flipX=false; if(enemy.body.onFloor()) enemy.play('walk',true);}
+        else if(enemy.x<player.x-90){enemy.body.setVelocityX(100); enemy.flipX=true; if(enemy.body.onFloor()) enemy.play('walk',true);}
+        else {enemy.body.setVelocityX(0); if(Phaser.Math.Between(1,50)===5 && !isBlocking){ hpP-=8; player.setTint(0xff0000); this.time.delayedCall(100,()=>player.clearTint()); }}
+        if(!enemy.body.onFloor()) enemy.play('jump',true);
+    }
+
+    if(hpE<=0||hpP<=0){
+        this.physics.pause();
+        this.add.text(window.innerWidth/2-80, window.innerHeight/2, hpE<=0?"¡VICTORIA!":"K.O.", {font:'bold 36px Arial', backgroundColor:'#000', padding:{x:15,y:8}});
+        this.time.delayedCall(2000,()=>location.reload());
+    }
+}
 </script>
 </body>
 </html>
