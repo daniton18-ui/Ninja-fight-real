@@ -2,114 +2,160 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NINJA FIGHT - STREET</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>NINJA 2D REAL - FIXED</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial Black,Arial}
-body{background:#0a0a0a;color:#fff}
-.h{background:#FF6B00;padding:10px;text-align:center}
-.g{width:96%;max-width:420px;margin:8px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:80px}
-.c{background:#1e1e1e;border:2px solid #FF8C00;border-radius:12px;overflow:hidden}
-.c.sel{border-color:#00FF66;box-shadow:0 0 12px #00FF66}
-.i{height:90px;background:#000;display:flex;align-items:center;justify-content:center}
-.i img{max-width:100%;max-height:90px}
-.info{padding:3px;text-align:center;background:#111}
-.info b{color:#FF8C00;font-size:9px}
-.btm{position:fixed;bottom:0;left:0;right:0;background:#111;padding:10px;display:flex;gap:8px;z-index:10}
-.btn{flex:1;padding:14px;border-radius:12px;font-weight:900}
-.btn1{background:#222;color:#FF8C00;border:2px solid #FF8C00}
-.btn2{background:#FF6B00;color:#000;border:0}
-#pelea{display:none;height:100vh;background:linear-gradient(to bottom,#1a2a4a 0%,#0a0a0a 60%);position:relative}
-.sf-top{display:flex;align-items:center;justify-content:space-between;padding:8px;background:#000}
-.life{height:22px;background:#333;border:2px solid #fff;flex:1;transform:skewX(-15deg);overflow:hidden}
-.life-fill{height:100%;width:100%;transition:width 0.3s}
-#v1{background:linear-gradient(90deg,#ffeb00,#ff6b00)}
-#v2{background:linear-gradient(90deg,#ff0040,#ff0000)}
-.vs{color:#ffeb00;font-size:28px;margin:0 10px;text-shadow:2px 2px 0 #000}
-.arena{position:relative;height:58vh;display:flex;align-items:flex-end;justify-content:space-between;padding:0 10px 20px}
-.fighter{width:42%;text-align:center;transition:transform 0.15s}
-.fighter img{width:130px;height:160px;object-fit:contain;filter:drop-shadow(0 0 8px #000)}
-.fighter.hit{animation:hit 0.3s}
-.fighter.att{transform:translateX(40px) scale(1.1)}
-#img2.att{transform:translateX(-40px) scale(1.1)}
-@keyframes hit{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}50%{transform:translateX(10px)}}
-.log{position:absolute;top:52%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#ffeb00;padding:8px 20px;border-radius:20px;border:2px solid #ffeb00;font-size:18px;min-width:200px;text-align:center}
-.atks{position:absolute;bottom:15px;left:0;right:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 10px}
-.atk{padding:18px;border-radius:12px;background:linear-gradient(#fff,#ccc);color:#000;font-weight:900;border:3px solid #000;box-shadow:0 4px 0 #000}
-.atk:active{transform:translateY(4px);box-shadow:0 0 0 #000}
-.nameTag{font-size:12px;color:#0f6;margin-bottom:5px}
-.nameTag.e{color:#f44}
+*{margin:0;padding:0;box-sizing:border-box;touch-action:none}
+body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden;font-family:Arial Black}
+canvas{background:linear-gradient(#2a4a8a,#111);border:3px solid #FF6B00;border-radius:10px}
+.controls{display:flex;gap:10px;margin-top:10px}
+.btn{width:70px;height:70px;background:#222;border:2px solid #FF6B00;border-radius:15px;color:#FF6B00;font-weight:900;font-size:22px;user-select:none}
+.btn:active{background:#FF6B00;color:#000}
+.btn-jump{background:#111;border-color:#00ff66;color:#00ff66;width:90px}
+.top{color:#ffeb00;padding:5px}
+.life{width:300px;height:18px;background:#333;border:2px solid #fff;display:flex}
+#v1{height:100%;background:#ffeb00;width:100%;transition:width 0.2s}
+#v2{height:100%;background:#ff0000;width:100%;transition:width 0.2s}
 </style>
 </head>
 <body>
-<div id="selScreen"><div class="h"><h2>ELIGE TU NINJA - STREET MODE</h2><p id="st" style="font-size:11px">Cargando...</p></div><div class="g" id="grid"></div><div class="btm"><button class="btn btn1" onclick="rand()">ALEATORIO</button><button class="btn btn2" onclick="go()">¡PELEAR!</button></div></div>
-
-<div id="pelea">
-<div class="sf-top"><div class="life"><div id="v1" class="life-fill"></div></div><div class="vs">VS</div><div class="life"><div id="v2" class="life-fill"></div></div></div>
-<div class="arena">
-<div class="fighter" id="f1"><div class="nameTag" id="n1"></div><img id="img1"></div>
-<div class="fighter" id="f2"><div class="nameTag e" id="n2"></div><img id="img2" style="transform:scaleX(-1)"></div>
-<div class="log" id="log">¡FIGHT!</div>
-</div>
-<div class="atks"><button class="atk" onclick="atk('golpe')">GOLPE</button><button class="atk" onclick="atk('jutsu')">JUTSU</button><button class="atk" onclick="atk('def')">DEFENSA</button></div>
+<div class="top">NINJA 2D - CAMINA Y SALTA</div>
+<div class="life"><div id="v1"></div><div id="v2"></div></div>
+<canvas id="game" width="380" height="260"></canvas>
+<div class="controls">
+<button class="btn" id="left">◀</button>
+<button class="btn btn-jump" id="jump">SALTO</button>
+<button class="btn" id="attack">GOLPE</button>
+<button class="btn" id="right">▶</button>
 </div>
 
 <script>
-let NINJAS=[],sel=null,ene=null,life1=100,life2=100;
-const NAMES={neji:'NEJI',lee:'LEE',sasuke:'SASUKE','072':'SAKURA',shikamaru:'SHIKA',naruto:'NARUTO',jiraiya:'JIRAIYA',anko:'ANKO',kakashi:'KAKASHI',temari:'TEMARI'};
-async function load(){
- try{
-  let r=await fetch('https://api.github.com/repos/daniton18-ui/Ninja-fight-real/contents');
-  let files=await r.json();
-  let imgs=files.filter(f=>f.name.match(/\.(jpg|png|jpeg)$/i));
-  NINJAS=imgs.map(f=>{
-    let low=f.name.toLowerCase();
-    let k=Object.keys(NAMES).find(x=>low.includes(x));
-    return {n:k?NAMES[k]:f.name.slice(0,6).toUpperCase(),f:f.name};
-  });
-  document.getElementById('st').innerText=NINJAS.length+' NINJAS LISTOS';
- }catch(e){
-  NINJAS=[
-   {n:'NEJI',f:'0d7e5-1_neji004.jpg'},{n:'LEE',f:'15451-rock-lee-19.jpg'},{n:'SAKURA',f:'47c62-072.jpg'},{n:'NARUTO',f:'6b8b8-naruto-5.png'},
-   {n:'SASUKE',f:'89e7e-sasuke.png'},{n:'SHIKA',f:'shika.jpg'},{n:'JIRAIYA',f:'jiraiya.jpg'},{n:'ANKO',f:'anko.jpg'},{n:'KAKASHI',f:'kakashi.jpg'},{n:'TEMARI',f:'temari.jpg'}
-  ];
-  document.getElementById('st').innerText='10 NINJAS MODO LOCAL';
- }
- build();
+const canvas=document.getElementById('game')
+const ctx=canvas.getContext('2d')
+let keys={}
+
+let imgPlayer=new Image()
+let imgEnemy=new Image()
+imgPlayer.src='0d7e5-1_neji004.jpg'
+imgEnemy.src='15451-rock-lee-19.jpg'
+let imgPlayerOk=true, imgEnemyOk=true
+imgPlayer.onerror=()=>imgPlayerOk=false
+imgEnemy.onerror=()=>imgEnemyOk=false
+
+let player={x:30,y:180,w:50,h:60,vx:0,vy:0,onGround:false,dir:1,attacking:0,life:100}
+let enemy={x:280,y:180,w:50,h:60,vx:0,life:100,cooldown:0}
+let gravity=0.65
+
+let leftDown=false,rightDown=false,jumpPressed=false
+
+function update(){
+  if(keys['a'] || keys['ArrowLeft'] || leftDown){player.vx=-3.5;player.dir=-1}
+  else if(keys['d'] || keys['ArrowRight'] || rightDown){player.vx=3.5;player.dir=1}
+  else player.vx*=0.8
+
+  if((keys['w'] || keys[' '] || keys['ArrowUp'] || jumpPressed) && player.onGround){
+    player.vy=-12
+    player.onGround=false
+  }
+  jumpPressed=false
+
+  player.vy+=gravity
+  player.x+=player.vx
+  player.y+=player.vy
+
+  if(player.y+player.h >= 240){player.y=240-player.h;player.vy=0;player.onGround=true}
+  if(player.x<0) player.x=0
+  if(player.x>330) player.x=330
+
+  if(enemy.cooldown<=0){
+    let diff=player.x-enemy.x
+    if(Math.abs(diff)>5) enemy.vx=Math.sign(diff)*1.5
+    else enemy.vx=0
+    enemy.x+=enemy.vx
+  }else enemy.cooldown--
+
+  if(player.attacking>0){
+    player.attacking--
+    let hitX=player.dir==1 ? player.x+player.w : player.x-40
+    if(hitX < enemy.x+enemy.w && hitX+40 > enemy.x && player.y+15 < enemy.y+enemy.h && player.y+40 > enemy.y){
+       enemy.life-=1.2
+       if(enemy.life<0) enemy.life=0
+       enemy.cooldown=15
+       enemy.x+=player.dir*6
+    }
+  }
+
+  if(Math.abs(enemy.x-player.x)<48 && Math.random()<0.025 && enemy.cooldown<=0){
+    player.life-=10
+    if(player.life<0) player.life=0
+    enemy.cooldown=50
+    player.x+= (player.x<enemy.x?-12:12)
+  }
 }
-function build(){let g=document.getElementById('grid');g.innerHTML='';NINJAS.forEach((n,i)=>{let d=document.createElement('div');d.className='c';d.id='c-'+i;d.innerHTML=`<div class="i"><img src="${n.f}" onerror="this.style.display='none'"></div><div class="info"><b>${n.n}</b></div>`;d.onclick=()=>pick(i);g.appendChild(d);});}
-function pick(i){document.querySelectorAll('.c').forEach(x=>x.classList.remove('sel'));document.getElementById('c-'+i).classList.add('sel');sel=NINJAS[i];}
-function rand(){if(!NINJAS.length)return;pick(Math.floor(Math.random()*NINJAS.length));}
-function go(){
- if(!sel){alert('Toca un ninja, que se ponga verde');return;}
- let otros=NINJAS.filter((x,idx)=> idx !== NINJAS.indexOf(sel));
- if(otros.length===0) otros=NINJAS;
- ene=otros[Math.floor(Math.random()*otros.length)];
- document.getElementById('selScreen').style.display='none';
- document.getElementById('pelea').style.display='block';
- document.getElementById('n1').innerText=sel.n;
- document.getElementById('n2').innerText=ene.n;
- document.getElementById('img1').src=sel.f;
- document.getElementById('img2').src=ene.f;
- life1=100;life2=100;up();
+
+function drawPlayer(x,y,w,h,dir,ok,img){
+  if(ok && img.complete && img.naturalWidth>0){
+    ctx.save()
+    if(dir==-1){ctx.scale(-1,1);ctx.drawImage(img,-x-w,y,w,h)}
+    else ctx.drawImage(img,x,y,w,h)
+    ctx.restore()
+  }else{
+    ctx.fillStyle='#FF8C00'
+    ctx.fillRect(x,y,w,h)
+    ctx.fillStyle='#000'
+    ctx.fillRect(x+10,y+10,10,10)
+    ctx.fillRect(x+30,y+10,10,10)
+  }
 }
-function atk(t){
- let f1=document.getElementById('f1'),f2=document.getElementById('f2');
- if(t==='golpe'){f1.classList.add('att');setTimeout(()=>f1.classList.remove('att'),200);life2-=15;document.getElementById('log').innerText='GOLPE -15';f2.classList.add('hit');setTimeout(()=>f2.classList.remove('hit'),300);}
- if(t==='jutsu'){f1.classList.add('att');setTimeout(()=>f1.classList.remove('att'),200);life2-=28;document.getElementById('log').innerText='JUTSU -28';f2.classList.add('hit');setTimeout(()=>f2.classList.remove('hit'),300);}
- if(t==='def'){life1=Math.min(100,life1+15);document.getElementById('log').innerText='DEFENSA +15';up();setTimeout(eTurn,500);return;}
- if(life2<0)life2=0;up();if(life2<=0){document.getElementById('log').innerText='GANASTE!';setTimeout(()=>location.reload(),1500);return;}setTimeout(eTurn,600);
+
+function draw(){
+  ctx.clearRect(0,0,380,260)
+  ctx.fillStyle='#442200'
+  ctx.fillRect(0,240,380,20)
+
+  drawPlayer(player.x,player.y,player.w,player.h,player.dir,imgPlayerOk,imgPlayer)
+
+  if(player.attacking>0){
+    ctx.fillStyle='rgba(0,255,0,0.55)'
+    let hx=player.dir==1?player.x+player.w:player.x-40
+    ctx.fillRect(hx,player.y+15,40,25)
+  }
+
+  drawPlayer(enemy.x,enemy.y,enemy.w,enemy.h,1,imgEnemyOk,imgEnemy)
+
+  ctx.strokeStyle='rgba(255,0,0,0.5)'
+  ctx.strokeRect(enemy.x,enemy.y,enemy.w,enemy.h)
+
+  document.getElementById('v1').style.width=player.life+'%'
+  document.getElementById('v2').style.width=enemy.life+'%'
+
+  if(player.life<=0 || enemy.life<=0){
+    ctx.fillStyle='yellow'
+    ctx.font='bold 28px Arial'
+    ctx.fillText(player.life<=0?'PERDISTE':'GANASTE!',100,120)
+  }
 }
-function eTurn(){
- let f1=document.getElementById('f1'),f2=document.getElementById('f2');
- f2.classList.add('att');setTimeout(()=>f2.classList.remove('att'),200);
- life1-=15;if(life1<0)life1=0;document.getElementById('log').innerText+=' | Enemigo -15';f1.classList.add('hit');setTimeout(()=>f1.classList.remove('hit'),300);
- up();if(life1<=0){document.getElementById('log').innerText='PERDISTE';setTimeout(()=>location.reload(),1500);}
+
+function loop(){update();draw();requestAnimationFrame(loop)}
+loop()
+
+window.addEventListener('keydown', e=>{
+  keys[e.key]=true
+  if(e.code==='Space') player.attacking=18
+})
+window.addEventListener('keyup', e=>keys[e.key]=false)
+
+function bind(id, down, up){
+  let el=document.getElementById(id)
+  el.addEventListener('touchstart', e=>{e.preventDefault();down()}, {passive:false})
+  el.addEventListener('touchend', e=>{e.preventDefault();up()}, {passive:false})
+  el.addEventListener('mousedown', down)
+  el.addEventListener('mouseup', up)
 }
-function up(){document.getElementById('v1').style.width=life1+'%';document.getElementById('v2').style.width=life2+'%';}
-load();
+bind('left', ()=>leftDown=true, ()=>leftDown=false)
+bind('right', ()=>rightDown=true, ()=>rightDown=false)
+bind('jump', ()=>jumpPressed=true, ()=>{})
+bind('attack', ()=>player.attacking=18, ()=>{})
 </script>
 </body>
 </html>
