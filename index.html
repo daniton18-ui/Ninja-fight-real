@@ -4,65 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Ninja Road: Street Fighter</title>
-    <!-- SDK de Telegram y Motor Phaser -->
-    <script src="https://telegram.org"></script>
-    <script src="https://jsdelivr.net"></script>
+    <!-- SDKs CORREGIDOS -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #1a1a1a;
             color: #fff;
             text-align: center;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             overflow: hidden;
         }
         #menu-screen {
-            padding: 20px;
-            box-sizing: border-box;
-            height: 100vh;
-            display: flex;
+            padding: 20px; box-sizing: border-box;
+            height: 100vh; display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
         }
         .stats-container {
-            background: #2d2d2d;
-            border: 2px solid #ff4757;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            width: 80%;
-            max-width: 300px;
+            background: #2d2d2d; border: 2px solid #ff4757;
+            padding: 15px; border-radius: 10px;
+            margin-bottom: 20px; width: 80%; max-width: 300px;
         }
         .btn {
-            background-color: #ff4757;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            width: 80%;
-            max-width: 300px;
+            background-color: #ff4757; color: white; border: none;
+            padding: 15px 30px; font-size: 18px; font-weight: bold;
+            border-radius: 5px; cursor: pointer; margin: 10px;
+            width: 80%; max-width: 300px;
             box-shadow: 0 4px #ff2e44;
         }
-        .btn:active {
-            box-shadow: 0 0px #ff2e44;
-            transform: translateY(4px);
-        }
-        #game-container {
-            display: none;
-            width: 100vw;
-            height: 100vh;
-        }
+        .btn:active { box-shadow: 0 0px; transform: translateY(4px); }
+        #game-container { display: none; width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: MENÚ PRINCIPAL -->
     <div id="menu-screen">
         <h1>🥷 NINJA ROAD 🥷</h1>
         <div class="stats-container">
@@ -73,20 +50,15 @@
         <button class="btn" onclick="startFight()">🥊 PELEAR (VS IA)</button>
     </div>
 
-    <!-- PANTALLA 2: CONTENEDOR DEL JUEGO -->
     <div id="game-container"></div>
 
 <script>
-    // --- 1. CONFIGURACIÓN DE TELEGRAM Y ESTADO ---
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.ready();
+    const tg = window.Telegram?.WebApp;
+    if(tg){ tg.expand(); tg.ready(); }
 
     let playerState = {
-        name: tg.initDataUnsafe?.user?.first_name || "Ninja",
-        level: 1,
-        xp: 0,
-        coins: 20
+        name: tg?.initDataUnsafe?.user?.first_name || "Ninja",
+        level: 1, xp: 0, coins: 20
     };
 
     function updateUI() {
@@ -100,157 +72,150 @@
     function startFight() {
         document.getElementById('menu-screen').style.display = 'none';
         document.getElementById('game-container').style.display = 'block';
-        initPhaserGame(); // Arranca el motor gráfico
+        initPhaserGame();
     }
 
-    // --- 2. MOTOR DEL JUEGO (PHASER 3) ---
     function initPhaserGame() {
         const config = {
             type: Phaser.AUTO,
             width: window.innerWidth,
             height: window.innerHeight,
             parent: 'game-container',
-            physics: {
-                default: 'arcade',
-                arcade: { gravity: { y: 600 }, debug: false }
-            },
-            scene: { preload: preload, create: create, update: update }
+            physics: { default: 'arcade', arcade: { gravity: { y: 800 }, debug: false } },
+            scene: { preload, create, update }
         };
 
         const game = new Phaser.Game(config);
-        let player, enemy;
+        let player, enemy, ground;
         let playerHealth = 100, enemyHealth = 100;
         let playerHealthBar, enemyHealthBar;
         let moveLeft = false, moveRight = false;
         let isAttacking = false;
+        let cursors;
 
         function preload() {
-            // Recursos gráficos temporales de la librería oficial de Phaser
-            this.load.image('background', 'https://phaser.io');
-            this.load.image('platform', 'https://phaser.io');
-            this.load.spritesheet('ninja-player', 'https://phaser.io', { frameWidth: 32, frameHeight: 48 });
-            this.load.image('hit-btn', 'https://phaser.io'); // Botón de golpe temporal
+            // YA NO CARGAMOS IMÁGENES ROTAS, TODO SE DIBUJA CON CÓDIGO
         }
 
         function create() {
-            const width = this.cameras.main.width;
-            const height = this.cameras.main.height;
+            const w = this.cameras.main.width;
+            const h = this.cameras.main.height;
 
-            // Escenario de fondo
-            let bg = this.add.image(width / 2, height / 2, 'background');
-            bg.setDisplaySize(width, height);
+            // Fondo con degradado
+            this.add.rectangle(w/2, h/2, w, h, 0x1a1a2e);
+            this.add.rectangle(w/2, h*0.3, w, h*0.6, 0x16213e);
 
-            // Suelo (Plataforma física)
-            let ground = this.physics.add.staticGroup();
-            let floor = ground.create(width / 2, height - 100, 'platform');
-            floor.setDisplaySize(width, 40).refreshBody();
+            // Suelo
+            ground = this.add.rectangle(w/2, h-50, w, 100, 0x2d2d2d);
+            this.physics.add.existing(ground, true);
 
-            // --- PERSONAJES ---
-            // Jugador (Ninja Azul)
-            player = this.physics.add.sprite(width * 0.25, height - 200, 'ninja-player').setTint(0x3498db);
-            player.setCollideWorldBounds(true);
+            // Jugador - rectángulo azul
+            player = this.add.rectangle(w*0.25, h-150, 40, 60, 0x3498db);
+            this.physics.add.existing(player);
+            player.body.setCollideWorldBounds(true);
+            player.body.setSize(40,60);
+
+            // Enemigo - rectángulo rojo
+            enemy = this.add.rectangle(w*0.75, h-150, 40, 60, 0xe74c3c);
+            this.physics.add.existing(enemy);
+            enemy.body.setCollideWorldBounds(true);
+            enemy.body.setSize(40,60);
+
             this.physics.add.collider(player, ground);
-
-            // Enemigo (IA - Ninja Rojo)
-            enemy = this.physics.add.sprite(width * 0.75, height - 200, 'ninja-player').setTint(0xe74c3c);
-            enemy.setCollideWorldBounds(true);
             this.physics.add.collider(enemy, ground);
 
-            // Animaciones del sprite
-            this.anims.create({
-                key: 'walk',
-                frames: this.anims.generateFrameNumbers('ninja-player', { start: 0, end: 3 }),
-                frameRate: 10,
-                repeat: -1
-            });
-
-            // --- BARRAS DE VIDA (Estilo Street Fighter) ---
+            // Barras de vida
             playerHealthBar = this.add.graphics();
             enemyHealthBar = this.add.graphics();
-            drawHealthBars();
 
-            // Nombres en pantalla
             this.add.text(20, 20, playerState.name.toUpperCase(), { font: 'bold 16px Arial', fill: '#3498db' });
-            this.add.text(width - 120, 20, 'IA NINJA', { font: 'bold 16px Arial', fill: '#e74c3c' });
+            this.add.text(w-120, 20, 'IA NINJA', { font: 'bold 16px Arial', fill: '#e74c3c' });
 
-            // --- CONTROLES TÁCTILES PARA CELULAR ---
-            // Botón Izquierda
-            let btnLeft = this.add.text(40, height - 60, '◀', { font: '48px Arial', fill: '#fff' }).setInteractive();
+            // Controles táctiles
+            let btnLeft = this.add.text(40, h-70, '◀', { font: '48px Arial', fill: '#fff' }).setInteractive();
             btnLeft.on('pointerdown', () => moveLeft = true);
-            btnLeft.on('pointerup', () => { moveLeft = false; player.setVelocityX(0); });
+            btnLeft.on('pointerup', () => { moveLeft = false; player.body.setVelocityX(0); });
+            btnLeft.on('pointerout', () => { moveLeft = false; player.body.setVelocityX(0); });
 
-            // Botón Derecha
-            let btnRight = this.add.text(140, height - 60, '▶', { font: '48px Arial', fill: '#fff' }).setInteractive();
+            let btnRight = this.add.text(140, h-70, '▶', { font: '48px Arial', fill: '#fff' }).setInteractive();
             btnRight.on('pointerdown', () => moveRight = true);
-            btnRight.on('pointerup', () => { moveRight = false; player.setVelocityX(0); });
+            btnRight.on('pointerup', () => { moveRight = false; player.body.setVelocityX(0); });
+            btnRight.on('pointerout', () => { moveRight = false; player.body.setVelocityX(0); });
 
-            // Botón de Golpe (Puño)
-            let btnPunch = this.add.text(width - 100, height - 60, '🥊', { font: '48px Arial', fill: '#ff4757' }).setInteractive();
-            btnPunch.on('pointerdown', () => {
-                if (!isAttacking) {
-                    isAttacking = true;
-                    player.setTint(0xffffff); // Destello blanco al golpear
-                    
-                    // Detectar si el enemigo está lo suficientemente cerca (Rango de golpe)
-                    let distance = Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y);
-                    if (distance < 60) {
-                        enemyHealth -= 15;
-                        enemy.setTint(0xff0000); // El enemigo parpadea en rojo al recibir daño
-                        this.time.delayedCall(200, () => enemy.setTint(0xe74c3c));
-                    }
+            let btnPunch = this.add.text(w-100, h-70, '🥊', { font: '48px Arial' }).setInteractive();
+            btnPunch.on('pointerdown', () => doPunch.call(this));
 
-                    this.time.delayedCall(300, () => {
-                        player.setTint(0x3498db);
-                        isAttacking = false;
-                    });
-                }
+            cursors = this.input.keyboard.createCursorKeys();
+            this.input.keyboard.on('keydown-SPACE', () => doPunch.call(this));
+        }
+
+        function doPunch() {
+            if (isAttacking) return;
+            isAttacking = true;
+            player.fillColor = 0xffffff;
+            let dist = Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y);
+            if (dist < 70) {
+                enemyHealth -= 15;
+                enemy.fillColor = 0xff0000;
+                this.time.delayedCall(150, () => enemy.fillColor = 0xe74c3c);
+                enemy.x += (enemy.x > player.x ? 15 : -15);
+            }
+            this.time.delayedCall(250, () => {
+                player.fillColor = 0x3498db;
+                isAttacking = false;
             });
         }
 
         function update() {
-            // 1. Movimiento del Jugador basado en los botones táctiles
-            if (moveLeft) {
-                player.setVelocityX(-160);
-                player.flipX = true;
-            } else if (moveRight) {
-                player.setVelocityX(160);
-                player.flipX = false;
+            if (playerHealth <=0 || enemyHealth <=0) return;
+
+            if (moveLeft || cursors.left.isDown) {
+                player.body.setVelocityX(-200);
+            } else if (moveRight || cursors.right.isDown) {
+                player.body.setVelocityX(200);
+            } else {
+                player.body.setVelocityX(0);
             }
 
-            // 2. Inteligencia Artificial Básica (Enemigo)
-            if (enemyHealth > 0 && playerHealth > 0) {
-                // Perseguir al jugador paulatinamente
-                if (enemy.x > player.x + 50) {
-                    enemy.setVelocityX(-80);
-                    enemy.flipX = true;
-                } else if (enemy.x < player.x - 50) {
-                    enemy.setVelocityX(80);
-                    enemy.flipX = false;
-                } else {
-                    enemy.setVelocityX(0);
-                    // Si está pegado, la IA ataca con una probabilidad aleatoria
-                    if (Phaser.Math.Between(1, 30) === 5) {
-                        playerHealth -= 10;
-                        player.setTint(0xff0000);
-                        this.time.delayedCall(200, () => player.setTint(0x3498db));
+            // IA simple
+            if (enemyHealth > 0) {
+                if (enemy.x > player.x + 55) enemy.body.setVelocityX(-90);
+                else if (enemy.x < player.x - 55) enemy.body.setVelocityX(90);
+                else {
+                    enemy.body.setVelocityX(0);
+                    if (Phaser.Math.Between(1,40) === 5) {
+                        playerHealth -= 8;
+                        player.fillColor = 0xff0000;
+                        this.time.delayedCall(150, () => player.fillColor = 0x3498db);
+                        player.x += (player.x < enemy.x ? -12 : 12);
                     }
                 }
             }
 
-            // Actualizar interfaz de barras de salud constantemente
-            drawHealthBars();
+            playerHealthBar.clear();
+            playerHealthBar.fillStyle(0x2ed573, 1);
+            playerHealthBar.fillRect(20, 45, Math.max(0,playerHealth)*1.5, 15);
+            enemyHealthBar.clear();
+            enemyHealthBar.fillStyle(0xff4757, 1);
+            enemyHealthBar.fillRect(window.innerWidth-170, 45, Math.max(0,enemyHealth)*1.5, 15);
 
-            // 3. Condición de Fin de Partida (K.O.)
-            if (enemyHealth <= 0 || playerHealth <= 0) {
+            if (enemyHealth <=0 || playerHealth <=0) {
                 this.physics.pause();
-                let resultText = enemyHealth <= 0 ? "¡VICTORIA!" : "K.O. PERDISTE";
-                
-                if (enemyHealth <= 0) {
-                    playerState.xp += 35;
-                    playerState.coins += 15;
-                    if(playerState.xp >= 100) {
-                        playerState.level += 1;
-                        playerState.xp = 0;
-                    }
+                let won = enemyHealth <=0;
+                if(won){
+                    playerState.xp+=35; playerState.coins+=15;
+                    if(playerState.xp>=100){playerState.level++; playerState.xp=0;}
                 }
-
+                this.add.text(this.cameras.main.width/2 -110, this.cameras.main.height/2, won?"¡VICTORIA!":"K.O. PERDISTE", { font:'bold 28px Arial', fill:'#fff', backgroundColor:'#000', padding:{x:10,y:6} });
+                this.time.delayedCall(2500, () => {
+                    game.destroy(true);
+                    document.getElementById('game-container').style.display='none';
+                    document.getElementById('menu-screen').style.display='flex';
+                    updateUI();
+                });
+            }
+        }
+    }
+</script>
+</body>
+</html>
