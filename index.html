@@ -8,157 +8,73 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;overflow:hidden;user-select:none;font-family:Arial}
+body{background:#0a0a0a;overflow:hidden}
 #game-container{width:100vw;height:100vh}
-.ctrl{position:absolute;z-index:10;width:58px;height:58px;border-radius:16px;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);display:flex;justify-content:center;align-items:center;font-size:28px}
+.ctrl{position:absolute;z-index:10;width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);display:flex;justify-content:center;align-items:center;font-size:28px;user-select:none}
 .ctrl:active{background:rgba(255,71,87,0.7);transform:scale(0.9)}
-#up{left:75px;bottom:150px} #down{left:75px;bottom:20px}
-#left{left:10px;bottom:85px} #right{left:140px;bottom:85px}
-#tri{right:75px;bottom:150px;border-color:#2ed573;background:rgba(46,213,115,0.2)}
-#sqr{right:140px;bottom:85px;border-color:#3498db;background:rgba(52,152,219,0.2)}
-#cir{right:10px;bottom:85px;border-color:#ff4757;background:rgba(255,71,87,0.2)}
-#xis{right:75px;bottom:20px;border-color:#a480ff;background:rgba(164,128,255,0.2)}
-#label{position:absolute;top:10px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;opacity:0.6}
+#up{left:75px;bottom:150px} #down{left:75px;bottom:20px} #left{left:10px;bottom:85px} #right{left:140px;bottom:85px}
+#tri{right:75px;bottom:150px;border-color:#2ed573;background:rgba(46,213,115,0.25)} 
+#sqr{right:140px;bottom:85px;border-color:#3498db;background:rgba(52,152,219,0.25)} 
+#cir{right:10px;bottom:85px;border-color:#ff4757;background:rgba(255,71,87,0.25)} 
+#xis{right:75px;bottom:20px;border-color:#a480ff;background:rgba(164,128,255,0.25)}
 </style>
 </head>
 <body>
-<div id="label">⬅️⬆️⬇️➡️ Mover | 🔺🟦⭕❌ Atacar</div>
 <div id="game-container"></div>
 <div id="up" class="ctrl">⬆️</div><div id="down" class="ctrl">⬇️</div><div id="left" class="ctrl">⬅️</div><div id="right" class="ctrl">➡️</div>
 <div id="tri" class="ctrl">🔺</div><div id="sqr" class="ctrl">🟦</div><div id="cir" class="ctrl">⭕</div><div id="xis" class="ctrl">❌</div>
 
 <script>
 const tg=window.Telegram?.WebApp; if(tg){tg.expand();tg.ready();}
-const config={type:Phaser.AUTO,width:window.innerWidth,height:window.innerHeight,parent:'game-container',physics:{default:'arcade',arcade:{gravity:{y:1000},debug:false}},scene:{preload,create,update}};
-new Phaser.Game(config);
+new Phaser.Game({type:Phaser.AUTO,width:window.innerWidth,height:window.innerHeight,parent:'game-container',physics:{default:'arcade',arcade:{gravity:{y:1100},debug:false}},scene:{preload,create,update}});
 
-let player,enemy,ground;
-let move={up:false,down:false,left:false,right:false};
-let isCrouching=false,isBlocking=false,isAttacking=false;
-let hpP=100,hpE=100;
+let player,enemy,ground,move={up:false,down:false,left:false,right:false},isCrouching=false,isBlocking=false,isAttacking=false,hpP=100,hpE=100;
 
 function preload(){
-    // TU SPRITESHEET NUEVO CON CUERPO MOVIBLE - 6 FRAMES
-    this.load.spritesheet('body','./ninja_body.png',{frameWidth:320,frameHeight:320});
+    // TU IMAGEN DIRECTA - YA CON CUERPO MOVIBLE
+    this.load.spritesheet('body','https://i.ibb.co/bp0SbV4/ninja-body.jpg',{frameWidth:320,frameHeight:320});
 }
 
 function create(){
     const w=this.cameras.main.width,h=this.cameras.main.height;
     this.add.rectangle(w/2,h/2,w,h,0x1a1f2e);
-    ground=this.add.rectangle(w/2,h-15,w,30,0x222222); this.physics.add.existing(ground,true);
+    ground=this.add.rectangle(w/2,h-15,w,30,0x222); this.physics.add.existing(ground,true);
 
-    // ANIMACIONES CON MOVIMIENTO DE CUERPO REAL
-    this.anims.create({key:'idle',frames:[{key:'body',frame:0}],frameRate:6,repeat:-1});
+    this.anims.create({key:'idle',frames:[{key:'body',frame:0}]});
     this.anims.create({key:'walk',frames:this.anims.generateFrameNumbers('body',{start:1,end:2}),frameRate:10,repeat:-1});
-    this.anims.create({key:'jump',frames:[{key:'body',frame:3}],frameRate:1});
-    this.anims.create({key:'crouch',frames:[{key:'body',frame:4}],frameRate:1});
-    this.anims.create({key:'punch',frames:[{key:'body',frame:5}],frameRate:12});
-    this.anims.create({key:'punch2',frames:[{key:'body',frame:5}],frameRate:20});
-    this.anims.create({key:'kick',frames:[{key:'body',frame:5}],frameRate:15});
+    this.anims.create({key:'jump',frames:[{key:'body',frame:3}]});
+    this.anims.create({key:'crouch',frames:[{key:'body',frame:4}]});
+    this.anims.create({key:'punch',frames:[{key:'body',frame:5}]});
 
     player=this.physics.add.sprite(w*0.3,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
-    player.body.setSize(80,140).setOffset(120,140);
-    player.play('idle');
+    player.body.setSize(80,140).setOffset(120,140); player.play('idle');
 
     enemy=this.physics.add.sprite(w*0.7,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
-    enemy.setTint(0x3498db); enemy.flipX=true;
-    enemy.body.setSize(80,140).setOffset(120,140);
-    enemy.play('idle');
+    enemy.setTint(0x3498db); enemy.flipX=true; enemy.body.setSize(80,140).setOffset(120,140); enemy.play('idle');
 
-    this.physics.add.collider(player,ground);
-    this.physics.add.collider(enemy,ground);
-
+    this.physics.add.collider(player,ground); this.physics.add.collider(enemy,ground);
     this.barP=this.add.graphics(); this.barE=this.add.graphics();
-    this.add.text(20,30,'TU',{font:'bold 12px Arial',fill:'#fff'});
-    this.add.text(w-40,30,'IA',{font:'bold 12px Arial',fill:'#fff'});
 
-    // BIND BOTONES
-    const bind=(id,k)=>{
-        let el=document.getElementById(id);
-        el.addEventListener('touchstart',e=>{e.preventDefault(); move[k]=true;},{passive:false});
-        el.addEventListener('touchend',e=>{e.preventDefault(); move[k]=false;},{passive:false});
-        el.addEventListener('mousedown',()=>move[k]=true);
-        el.addEventListener('mouseup',()=>move[k]=false);
-        el.addEventListener('mouseleave',()=>move[k]=false);
-    };
+    const bind=(id,k)=>{let el=document.getElementById(id); el.addEventListener('touchstart',e=>{e.preventDefault();move[k]=true;},{passive:false}); el.addEventListener('touchend',e=>{e.preventDefault();move[k]=false;},{passive:false}); el.addEventListener('mousedown',()=>move[k]=true); el.addEventListener('mouseup',()=>move[k]=false); el.addEventListener('mouseleave',()=>move[k]=false);};
     bind('up','up');bind('down','down');bind('left','left');bind('right','right');
 
-    const bindA=(id,fn)=>{
-        let el=document.getElementById(id);
-        el.addEventListener('touchstart',e=>{e.preventDefault(); fn.call(this);},{passive:false});
-        el.addEventListener('mousedown',()=>fn.call(this));
-    };
-
-    bindA('xis',function(){ // ❌ = SALTO + PATADA
-        if(player.body.onFloor()){ player.body.setVelocityY(-520); player.play('jump'); }
-    });
-    bindA('tri',function(){ // 🔺 TRIANGULO = GOLPE FUERTE
-        if(isAttacking) return; isAttacking=true;
-        player.play('punch'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
-        if(d<110){ hpE-=22; enemy.setTint(0xff0000); this.tweens.add({targets:enemy,x:enemy.x+(enemy.x>player.x?30:-30),duration:100,yoyo:true}); }
-        this.time.delayedCall(400,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
-    });
-    bindA('sqr',function(){ // 🟦 CUADRADO = PATADA RAPIDA
-        if(isAttacking) return; isAttacking=true;
-        player.play('kick'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
-        if(d<100){ hpE-=14; enemy.setTint(0xff4757); }
-        this.time.delayedCall(300,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
-    });
-    bindA('cir',function(){ // ⭕ CIRCULO = BLOQUEO
-        if(isBlocking) return; isBlocking=true; player.setTint(0x2ed573);
-        this.time.delayedCall(700,()=>{isBlocking=false; player.clearTint();});
-    });
+    const bindA=(id,fn)=>{let el=document.getElementById(id); el.addEventListener('touchstart',e=>{e.preventDefault();fn.call(this);},{passive:false}); el.addEventListener('mousedown',()=>fn.call(this));};
+    bindA('xis',function(){if(player.body.onFloor()){player.body.setVelocityY(-550);player.play('jump');}});
+    bindA('tri',function(){if(isAttacking)return;isAttacking=true;player.play('punch');let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);if(d<110){hpE-=22;enemy.setTint(0xff0000);this.tweens.add({targets:enemy,x:enemy.x+(enemy.x>player.x?25:-25),duration:80,yoyo:true});}this.time.delayedCall(350,()=>{isAttacking=false;enemy.clearTint();enemy.setTint(0x3498db);});});
+    bindA('sqr',function(){if(isAttacking)return;isAttacking=true;player.play('punch');let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);if(d<95){hpE-=14;enemy.setTint(0xff4757);}this.time.delayedCall(280,()=>{isAttacking=false;enemy.clearTint();enemy.setTint(0x3498db);});});
+    bindA('cir',function(){if(isBlocking)return;isBlocking=true;player.setTint(0x2ed573);this.time.delayedCall(600,()=>{isBlocking=false;player.clearTint();});});
 }
 
 function update(){
-    if(!player) return;
-
-    // ADELANTE / ATRAS - CUERPO CAMINA
-    if(move.left){
-        player.body.setVelocityX(-220); player.flipX=true;
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
-    } else if(move.right){
-        player.body.setVelocityX(220); player.flipX=false;
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
-    } else {
-        player.body.setVelocityX(0);
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('idle',true);
-    }
-
-    // SALTAR - CUERPO SE ENCOGE Y SALTA
-    if(move.up && player.body.onFloor()){
-        player.body.setVelocityY(-520);
-        player.play('jump');
-    }
-
-    // AGACHARSE - CUERPO BAJA REAL
-    if(move.down){
-        if(!isCrouching){ isCrouching=true; player.body.setSize(80,70).setOffset(120,220); }
-        if(player.body.onFloor()&&!isAttacking) player.play('crouch',true);
-        player.body.setVelocityX(player.body.velocity.x*0.5);
-    } else {
-        if(isCrouching){ isCrouching=false; player.body.setSize(80,140).setOffset(120,140); }
-    }
-
-    if(!player.body.onFloor()&&!isAttacking){ player.play('jump',true); }
-
-    // BARRAS
-    this.barP.clear(); this.barP.fillStyle(0x2ed573,1); this.barP.fillRect(20,50,Math.max(0,hpP)*1.5,10);
-    this.barE.clear(); this.barE.fillStyle(0xff4757,1); this.barE.fillRect(window.innerWidth-170,50,Math.max(0,hpE)*1.5,10);
-
-    // IA simple
-    if(hpE>0 && enemy.body){
-        if(enemy.x>player.x+90) {enemy.body.setVelocityX(-100); enemy.flipX=false; if(enemy.body.onFloor()) enemy.play('walk',true);}
-        else if(enemy.x<player.x-90){enemy.body.setVelocityX(100); enemy.flipX=true; if(enemy.body.onFloor()) enemy.play('walk',true);}
-        else {enemy.body.setVelocityX(0); if(Phaser.Math.Between(1,50)===5 && !isBlocking){ hpP-=8; player.setTint(0xff0000); this.time.delayedCall(100,()=>player.clearTint()); }}
-        if(!enemy.body.onFloor()) enemy.play('jump',true);
-    }
-
-    if(hpE<=0||hpP<=0){
-        this.physics.pause();
-        this.add.text(window.innerWidth/2-80, window.innerHeight/2, hpE<=0?"¡VICTORIA!":"K.O.", {font:'bold 36px Arial', backgroundColor:'#000', padding:{x:15,y:8}});
-        this.time.delayedCall(2000,()=>location.reload());
-    }
+    if(!player)return;
+    if(move.left){player.body.setVelocityX(-230);player.flipX=true;if(player.body.onFloor()&&!isAttacking&&!isCrouching)player.play('walk',true);}
+    else if(move.right){player.body.setVelocityX(230);player.flipX=false;if(player.body.onFloor()&&!isAttacking&&!isCrouching)player.play('walk',true);}
+    else {player.body.setVelocityX(0);if(player.body.onFloor()&&!isAttacking&&!isCrouching)player.play('idle',true);}
+    if(move.up&&player.body.onFloor()){player.body.setVelocityY(-550);player.play('jump');}
+    if(move.down){if(!isCrouching){isCrouching=true;player.body.setSize(80,70).setOffset(120,220);}if(player.body.onFloor()&&!isAttacking)player.play('crouch',true);}else{if(isCrouching){isCrouching=false;player.body.setSize(80,140).setOffset(120,140);}}
+    if(!player.body.onFloor()&&!isAttacking)player.play('jump',true);
+    this.barP.clear();this.barP.fillStyle(0x2ed573,1);this.barP.fillRect(20,50,Math.max(0,hpP)*1.5,10); this.barE.clear();this.barE.fillStyle(0xff4757,1);this.barE.fillRect(window.innerWidth-170,50,Math.max(0,hpE)*1.5,10);
+    if(hpE<=0||hpP<=0){this.physics.pause();this.add.text(window.innerWidth/2-80,window.innerHeight/2,hpE<=0?"¡VICTORIA!":"K.O.",{font:'bold 36px Arial',backgroundColor:'#000',padding:{x:15,y:8}});this.time.delayedCall(2000,()=>location.reload());}
 }
 </script>
 </body>
